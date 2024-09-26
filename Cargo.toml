@@ -1,0 +1,29 @@
+[package]
+name = "solana_bank"
+description = "On-chain Solana bank"
+version = "1.0.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = [ "PooriaGG - poor123mn@gmail.com" ]
+
+[features]
+no-entrypoint = []
+test-sbf = []
+
+[dependencies]
+borsh-derive = "0.10.0"
+solana-program = "=1.17.10"
+spl-token = { version = "4.0.0", features = ["no-entrypoint"] }
+thiserror = "1.0.52"
+ahash = "=0.8.6"
+borsh = ">=0.9, <0.11"
+num_enum = "0.7.2"
+spl-associated-token-account = { version = "2.0.0", features = ["no-entrypoint"] }
+
+[dev-dependencies]
+solana-program-test = "=1.17.10"
+solana-sdk = "=1.17.10"
+
+[lib]
+name = "solana_bank"
+crate-type = [ "cdylib", "lib" ]
