@@ -3,6 +3,7 @@ use {
         BorshDeserialize,
         BorshSerialize
     },
+    
     solana_program::{
         program_error::ProgramError,
         pubkey::Pubkey,
@@ -24,6 +25,7 @@ pub enum BankInstruction {
     ///     2. `[writable]` new bank-account
     ///     3. `[]` system-program account 
     CreateBankAccount,
+    
     /// withdraw lamports from bank-account
     /// 
     /// Accounts expected by this instruction:
@@ -35,7 +37,10 @@ pub enum BankInstruction {
         /// lamports to withdraw from bank-account
         lamports: u64
     },
+    
     /// withdraw tokens from bank-account's associated-token-account
+    ///
+    /// NOTE : The bank-account's A.T.A for the specific spl-token must be created and initialized before invoking this instruction (owner of the A.T.A must be the authority of the bank-account)
     /// 
     /// Accounts expected by this instruction:
     /// 
@@ -49,6 +54,7 @@ pub enum BankInstruction {
         /// token-amount to withdraw from bank-account's associated-token-account
         amount: u64
     },
+    
     /// withdraw lamports from bank-account's associated-token-account using ed25519 signature
     /// 
     /// previous instruction must be an ed25519-signature-verification instruction
@@ -62,15 +68,18 @@ pub enum BankInstruction {
     /// 4. `[]` system program account
     /// 5. `[]` memo program account (if memo message provided in the message)
     WithdrawLamportsUsingEd25519Signature,
+    
     /// withdraw tokens from bank-account's associated-token-account using ed25519 signature
     /// 
+    /// NOTE : The bank-account's A.T.A for the specific spl-token must be created and initialized before invoking this instruction (owner of the A.T.A must be the authority of the bank-account)
+    ///
     /// previous instruction must be an ed25519-signature-verification instruction
     /// 
     /// Accounts expected by this instruction:
     /// 
     /// 0. `[]` mint-account
-    /// 1. `[writable]` bank-account
-    /// 2. `[writable]` bank-account associated token-account
+    /// 1. `[writable]` destination bank-account
+    /// 2. `[writable]` source bank-account associated token-account
     /// 3. `[writable,signer]` funder for bank-account size increase
     /// 4. `[signer]` "to" account of the ed25519 signature
     /// 5. `[writable]` destination token-account
