@@ -14,10 +14,12 @@ use {
         },
         instruction::BankInstruction
     },
+    
     borsh::{
         BorshDeserialize,
         BorshSerialize
     },
+    
     solana_program::{
         account_info::{
             next_account_info,
@@ -54,6 +56,7 @@ use {
         },
         ed25519_program::ID as ED25519_PROGRAM_ID
     },
+    
     spl_token::{
         state::{
             Mint,
@@ -314,17 +317,14 @@ impl Processor {
         };
 
         let ed25519_data = ed25519_svi.data;
-        let message_v1 = validate_message_v1(&ed25519_data);
+        let message_v1 = validate_message_v1(&ed25519_data)?;
         let MessageV1 {
             signer,
             signature,
             to,
             lamports,
             memo
-        } = match message_v1 {
-            Err(err) => return Err(err),
-            Ok(msg_v1) => msg_v1
-        };
+        } = message_v1;
 
         let accounts_info = &mut accounts_info.iter();
 
@@ -356,14 +356,11 @@ impl Processor {
             );
         };
 
-        let validation_result = validate_bank_account(
+        validate_bank_account(
             program_id,
             &signer,
             bank_account_info
-        );
-        if let Err(err) = validation_result {
-            return Err(err);
-        };
+        )?;
 
         let bank_account_data = bank_account_info
             .data
@@ -391,9 +388,7 @@ impl Processor {
             time: Clock::get().unwrap().unix_timestamp
         };
 
-        if let Err(err) = bank_account.add_signature(&sig_info) {
-            return Err(err);
-        };
+        bank_account.add_signature(&sig_info)?;
 
         let space_to_add = sig_info
             .try_to_vec()
@@ -444,15 +439,11 @@ impl Processor {
         if memo.len() > 0 {
             let memo_program_account_info = next_account_info(accounts_info)?;
 
-            let memo_result = Self::_invoke_memo_program(
+            Self::_invoke_memo_program(
                 memo_program_account_info,
                 withdrawer_account_info,
                 memo.as_bytes().to_vec()
-            );
-
-            if let Err(err) = memo_result {
-                return Err(err);
-            };
+            )?;
         };
 
         **bank_account_info.try_borrow_mut_lamports()? -= lamports;
@@ -490,7 +481,7 @@ impl Processor {
         };
 
         let ed25519_data = ed25519_svi.data;
-        let message_v2 = validate_message_v2(&ed25519_data);
+        let message_v2 = validate_message_v2(&ed25519_data)?;
         let MessageV2 {
             signer,
             signature,
@@ -498,10 +489,7 @@ impl Processor {
             amount,
             memo,
             mint
-        } = match message_v2 {
-            Err(err) => return Err(err),
-            Ok(msg_v2) => msg_v2
-        };
+        } = message_v2;
 
         let accounts_info = &mut accounts_info.iter();
 
@@ -544,14 +532,11 @@ impl Processor {
             );
         };
 
-        let validation_result = validate_bank_account(
+        validate_bank_account(
             program_id,
             &signer,
             bank_account_info
-        );
-        if let Err(err) = validation_result {
-            return Err(err);
-        };
+        )?;
 
         if *mint_account_account.key != mint {
             return Err(
@@ -604,9 +589,7 @@ impl Processor {
                    .unwrap()[..]
         ).unwrap();
 
-        if let Err(error) = bank_account.add_signature(&signature_info) {
-            return Err(error);
-        };
+        bank_account.add_signature(&signature_info)?;
 
         let space_to_add = signature_info
             .try_to_vec()
@@ -695,15 +678,11 @@ impl Processor {
         if memo.len() > 0 {
             let memo_program_account_info = next_account_info(accounts_info)?;
 
-            let memo_result = Self::_invoke_memo_program(
+            Self::_invoke_memo_program(
                 memo_program_account_info,
                 withdrawer_account_info,
                 memo.as_bytes().to_vec()
-            );
-
-            if let Err(err) = memo_result {
-                return Err(err);
-            };
+            )?;
         };
 
         msg!("Withdraw compeleted. v2");
