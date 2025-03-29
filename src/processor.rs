@@ -474,16 +474,12 @@ impl Processor {
         program_id: &Pubkey,
         accounts_info: &[AccountInfo]
     ) -> ProgramResult {
-        let previous_instruction = get_processed_sibling_instruction(0)
+        let ed25519_svi = get_processed_sibling_instruction(0)
             .ok_or(
                 ProgramError::Custom(
                     BankError::FailedToGetEd25519Instruction as u32
                 )
-            );
-        let ed25519_svi = match previous_instruction {
-            Err(error) => return Err(error),
-            Ok(ix) => ix
-        };
+            )?;
 
         if ed25519_svi.program_id != ED25519_PROGRAM_ID {
             return Err(
