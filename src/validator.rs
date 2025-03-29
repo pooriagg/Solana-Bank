@@ -41,6 +41,10 @@ pub struct MessageV2 {
     pub memo: String
 }
 
+// constants
+const WITHDRAW_WITH_ED25519_LAMPORTS_ARGS_COUNT: usize = 3;
+const WITHDRAW_WITH_Ed25519__SPL_TOKEN__ARGS_COUNT: usize = 4;
+
 /// Message validator for lamports withdraw
 pub(crate) fn validate_message_v1(ed25519_signature_data: &Vec<u8>) -> Result<MessageV1, ProgramError> {
     let signer = ed25519_signature_data.get(16..48).unwrap();
@@ -54,7 +58,7 @@ pub(crate) fn validate_message_v1(ed25519_signature_data: &Vec<u8>) -> Result<Me
     ).unwrap();
     let message_info = msg.split(",").collect::<Vec<_>>();
 
-    if message_info.len() != 3 {
+    if message_info.len() != WITHDRAW_WITH_ED25519_LAMPORTS_ARGS_COUNT {
         return Err(
             ProgramError::Custom(
                 BankError::MessageV1ValidationFailed as u32
@@ -103,7 +107,7 @@ pub(crate) fn validate_message_v2(ed25519_signature_data: &Vec<u8>) -> Result<Me
     ).unwrap();
     let message_info = msg.split(",").collect::<Vec<_>>();
 
-    if message_info.len() != 4 {
+    if message_info.len() != WITHDRAW_WITH_Ed25519__SPL_TOKEN__ARGS_COUNT {
         return Err(
             ProgramError::Custom(
                 BankError::MessageV2ValidationFailed as u32
